@@ -2640,8 +2640,8 @@ static GObject *trg_main_window_constructor(GType type,
                                     TrgMainWindowPrivate);
     GtkWidget *w;
     GtkWidget *outerVbox;
-    GtkWidget *toolbarHbox;
-    GtkWidget *outerAlignment;
+    GtkWidget *searchAlignment;
+    GtkToolItem *searchItem;
     GtkIconTheme *theme;
     gint width, height, pos;
     gboolean tray;
@@ -2704,38 +2704,34 @@ static GObject *trg_main_window_constructor(GType type,
     g_signal_connect(priv->torrentTreeView, "row-activated",
                      G_CALLBACK(torrent_tv_onRowActivated), self);
 
-    outerVbox = trg_vbox_new(FALSE, 6);
-
-    /* Create a GtkAlignment to hold the outerVbox making possible
-     * some padding. */
-    outerAlignment = gtk_alignment_new (0.5f, 0.5f, 1.0f, 1.0f);
-    gtk_alignment_set_padding (GTK_ALIGNMENT (outerAlignment), 0, 0, 6, 6);
-    gtk_container_add (GTK_CONTAINER (outerAlignment), outerVbox);
-
-    gtk_container_add(GTK_CONTAINER(self), outerAlignment);
+    outerVbox = trg_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(self), outerVbox);
 
     priv->menuBar = trg_main_window_menu_bar_new(self);
     gtk_box_pack_start(GTK_BOX(outerVbox), GTK_WIDGET(priv->menuBar),
                        FALSE, FALSE, 0);
 
-    toolbarHbox = trg_hbox_new(FALSE, 0);
     priv->toolBar = trg_main_window_toolbar_new(self);
-    gtk_box_pack_start(GTK_BOX(toolbarHbox), GTK_WIDGET(priv->toolBar),
-                       TRUE, TRUE, 0);
-
+    
     w = gtk_entry_new();
     gtk_entry_set_icon_from_stock(GTK_ENTRY(w), GTK_ENTRY_ICON_SECONDARY,
                                   GTK_STOCK_CLEAR);
     g_signal_connect(w, "icon-release", G_CALLBACK(clear_filter_entry_cb),
                      NULL);
-    gtk_box_pack_start(GTK_BOX(toolbarHbox), w, FALSE, FALSE, 0);
     g_object_set(w, "secondary-icon-sensitive", FALSE, NULL);
     priv->filterEntry = w;
+
+    searchItem = gtk_tool_item_new();
+    searchAlignment = gtk_alignment_new (1.0f, 0.5f, 0.0f, 1.0f);
+    gtk_container_add (GTK_CONTAINER(searchAlignment), GTK_WIDGET(w));
+    gtk_container_add(GTK_CONTAINER(searchItem), GTK_WIDGET (searchAlignment));
+    gtk_toolbar_insert(GTK_TOOLBAR (priv->toolBar), searchItem, -1);
+    gtk_tool_item_set_expand (searchItem, TRUE);
 
     g_signal_connect(G_OBJECT(priv->filterEntry), "changed",
                      G_CALLBACK(entry_filter_changed_cb), self);
 
-    gtk_box_pack_start(GTK_BOX(outerVbox), GTK_WIDGET(toolbarHbox), FALSE,
+    gtk_box_pack_start(GTK_BOX(outerVbox), GTK_WIDGET(priv->toolBar), FALSE,
                        FALSE, 0);
 
 #if GTK_CHECK_VERSION( 3, 0, 0 )

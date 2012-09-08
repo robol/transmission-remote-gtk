@@ -189,6 +189,8 @@ static GObject *trg_toolbar_constructor(GType type,
     gtk_toolbar_set_icon_size(GTK_TOOLBAR(obj),
                               GTK_ICON_SIZE_LARGE_TOOLBAR);
     gtk_toolbar_set_style(GTK_TOOLBAR(obj), GTK_TOOLBAR_BOTH_HORIZ);
+    gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(obj)),
+				"primary-toolbar");
 
     priv->tb_connect =
         GTK_WIDGET(gtk_menu_tool_button_new_from_stock(GTK_STOCK_CONNECT));
